@@ -3,20 +3,26 @@ package com.example.jorge.mytestacromax;
 import android.animation.Animator;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.jorge.mytestacromax.utilite.HesitateInterpolator;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -28,6 +34,9 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
@@ -36,18 +45,19 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.IOException;
 
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_FILE;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_NAME;
-import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_TYPE;
 import static com.example.jorge.mytestacromax.utilite.Information.TAG;
 
 
@@ -63,12 +73,14 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
     private String mName;
     private String mFile;
+    private String mType;
 
     private SimpleExoPlayerView simpleExoPlayerView;
     private SimpleExoPlayer player;
 
-    private LinearLayout nLinearLayout;
-    private RelativeLayout nRelativeLayout;
+    private LinearLayout mLinearLayoutPalyPause;
+    private LinearLayout mLinearLayoutLineTime;
+    private RelativeLayout mRelativeLayout;
     private android.widget.RelativeLayout.LayoutParams layoutParams;
 
     @Override
@@ -79,21 +91,23 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         Bundle extras = getIntent().getExtras();
         mName = extras.getString(PUT_EXTRA_NAME);
         mFile = extras.getString(PUT_EXTRA_FILE);
+        mType = extras.getString(PUT_EXTRA_FILE);
 
         tv_name  = (TextView) findViewById(R.id.tv_name);
         tv_name.setText(mName);
 
-        nLinearLayout = (LinearLayout) findViewById(R.id.teste);
-        nRelativeLayout = (RelativeLayout) findViewById(R.id.relativelll);
+        mLinearLayoutPalyPause = (LinearLayout) findViewById(R.id.ll_play_pause);
+        mLinearLayoutLineTime = (LinearLayout) findViewById(R.id.ll_line_time);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.rl_player);
 
-        nLinearLayout.setOnLongClickListener(new View.OnLongClickListener() {
+        mLinearLayoutPalyPause.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
 
                 ClipData dragData = new ClipData(v.getTag().toString(),mimeTypes, item);
-                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(nLinearLayout);
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mLinearLayoutPalyPause);
 
                 v.startDrag(dragData,myShadow,null,0);
                 return true;
@@ -102,7 +116,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
 
 
-        nLinearLayout.setOnDragListener(new View.OnDragListener() {
+        mLinearLayoutPalyPause.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
                 switch(event.getAction()) {
@@ -151,7 +165,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
             }
         });
 
-        nLinearLayout.setOnTouchListener(new View.OnTouchListener() {
+        mLinearLayoutPalyPause.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 int min_distance = 200;
@@ -233,7 +247,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
                         v.setLayoutParams(layoutParams);
                         break;
                 }
-                nRelativeLayout.invalidate();
+                mRelativeLayout.invalidate();
                 return true;
             }
 
@@ -241,10 +255,13 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         });
 
 
+
         // 1. Create a default TrackSelector
         Handler mainHandler = new Handler();
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
+
+
         TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
         // 2. Create a default LoadControl
@@ -264,6 +281,35 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         // Produces Extractor instances for parsing the media data.
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         // This is the MediaSource representing the media to be played.
+
+
+
+
+
+
+
+        if (mType.toString().equals("MP3")){
+            MediaSource mediaSource = null;
+            mediaSource = createPlayerMp3(dataSourceFactory, extractorsFactory);
+            player.prepare(mediaSource);
+        }else{
+            HlsMediaSource hlsMediaSource = null;
+            hlsMediaSource = createPlayerM3u8(dataSourceFactory, mainHandler);
+            player.prepare(hlsMediaSource);
+        }
+
+
+        player.addListener(this);
+
+
+        simpleExoPlayerView.requestFocus();
+        player.setPlayWhenReady(true);
+
+
+
+    }
+
+    private HlsMediaSource createPlayerM3u8(DataSource.Factory dataSourceFactory, Handler mainHandler) {
         HlsMediaSource hlsMediaSource = new HlsMediaSource(Uri.parse(mFile), dataSourceFactory, mainHandler, new AdaptiveMediaSourceEventListener() {
             @Override
             public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
@@ -295,14 +341,17 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
                 Log.i("", "onDownstreamFormatChanged: ");
             }
         });
+        return  hlsMediaSource;
 
-        player.addListener(this);
-        player.prepare(hlsMediaSource);
-        simpleExoPlayerView.requestFocus();
-        player.setPlayWhenReady(true);
+    }
 
-
-
+    private MediaSource createPlayerMp3(DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory)  {
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(mFile),
+                dataSourceFactory,
+                extractorsFactory,
+                null,
+                null);
+        return  mediaSource;
     }
 
     @Override
@@ -339,7 +388,9 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
         Log.i("bebeto", "left to right");
 
-        v.animate().x(nRelativeLayout.getMeasuredWidth() - v.getMeasuredWidth()).setListener(new Animator.AnimatorListener() {
+        v.animate().setInterpolator(new DecelerateInterpolator())
+                .setDuration(1000)
+                .x(mRelativeLayout.getMeasuredWidth() - v.getMeasuredWidth()).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -360,13 +411,16 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
             }
         });
+        mRelativeLayout.invalidate();
     }
 
     public void onRightToLeftSwipe(View v) {
 
         Log.i(TAG, "right to left");
 
-        v.animate().x(0).setListener(new Animator.AnimatorListener() {
+        v.animate().setInterpolator(new DecelerateInterpolator())
+                .setDuration(1000)
+                .x(0).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -387,13 +441,16 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
             }
         });
+        mRelativeLayout.invalidate();
     }
 
     public void onTopToBottomSwipe(View v) {
 
         Log.i(TAG, "top to bottom");
 
-        v.animate().y(nRelativeLayout.getMeasuredHeight() - v.getMeasuredHeight()).setListener(new Animator.AnimatorListener() {
+        v.animate().setInterpolator(new DecelerateInterpolator())
+                .setDuration(1000)
+        .y(mRelativeLayout.getMeasuredHeight() - v.getMeasuredHeight() - mLinearLayoutLineTime.getHeight()).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -414,14 +471,16 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
             }
         });
+        mRelativeLayout.invalidate();
     }
 
     public void onBottomToTopSwipe(View v) {
 
         Log.i(TAG, "bottom to top ");
 
-
-        v.animate().y(0 + v.getPaddingTop()).setListener(new Animator.AnimatorListener() {
+        v.animate().setInterpolator(new DecelerateInterpolator())
+            .setDuration(1000)
+                .y(0 + v.getPaddingTop()).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -442,11 +501,24 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
             }
         });
+        mRelativeLayout.invalidate();
 
 
 
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.setPlayWhenReady(false); //to pause a video because now our video player is not in focus
+        }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        player.release();
     }
 
 }

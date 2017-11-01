@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:id="@+id/relativelll"
+    android:id="@+id/rl_player"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     tools:context=".MainActivity">
@@ -13,17 +13,12 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:gravity="center"
-
-        android:id="@+id/teste"
+        android:id="@+id/ll_play_pause"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="10dp"
         android:orientation="horizontal"
         android:paddingTop="10dp">
-
-
-
-
 
         <de.hdodenhof.circleimageview.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -34,7 +29,6 @@
             app:civ_border_width="2dp"
             app:paddingEnd="50dp"
             app:paddingStart="50dp"
-            android:longClickable="@+id/teste"
             app:civ_circle_background_color="@color/colorAccent"
             app:civ_border_color="#FF000000"/>
 
@@ -46,7 +40,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             app:civ_border_width="2dp"
-            android:longClickable="@+id/teste"
             app:civ_circle_background_color="@color/colorAccent"
             app:civ_border_color="#FF000000"/>
 
@@ -58,9 +51,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="300dp"
         android:gravity="center_vertical"
-
+        android:id="@+id/ll_line_time"
+        android:layout_alignParentBottom="true"
         android:background="@color/colorPrimaryDark"
         android:orientation="horizontal">
 
