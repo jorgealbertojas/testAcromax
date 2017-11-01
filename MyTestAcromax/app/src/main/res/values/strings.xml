@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">MyTestAcromax</string>
+
+    <string name="error_message">
+        Failed to get results. Please try again.
+    </string>
+    <string name="Error_Access">No access internet</string>
+    <string name="Error_Access_empty">Data empty! There were problems consuming the movies, please use RESTORE button.</string>
+
+    <string name="Error_json_data">Data problema! There were problems consuming the mivies</string>
+
 </resources>
