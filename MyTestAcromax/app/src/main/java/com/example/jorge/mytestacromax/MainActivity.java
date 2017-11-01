@@ -1,6 +1,7 @@
 package com.example.jorge.mytestacromax;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.jorge.mytestacromax.utilite.Information.BASE_URL;
+import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_FILE;
+import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_NAME;
+import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_TYPE;
 
 public class MainActivity extends AppCompatActivity implements PlayerAdapterOnClickHandler {
 
@@ -159,7 +163,13 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
 
     @Override
     public void onClick(Player player) {
-
+        Context context = this;
+        Class destinationClass = PlayerActivity.class;
+        Intent intentToStartDetailActivity = new Intent(context, destinationClass);
+        intentToStartDetailActivity.putExtra(PUT_EXTRA_NAME, player.getName());
+        intentToStartDetailActivity.putExtra(PUT_EXTRA_FILE, player.getFile());
+        intentToStartDetailActivity.putExtra(PUT_EXTRA_TYPE, player.getType());
+        startActivity(intentToStartDetailActivity);
     }
 }
 

@@ -66,7 +66,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerAdap
 
         public PlayerAdapterViewHolder(View view) {
             super(view);
-            mNameTextView = (TextView) view.findViewById(R.id.tx_name);
+            mNameTextView = (TextView) view.findViewById(R.id.tv_name);
             view.setOnClickListener(this);
         }
 

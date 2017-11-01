@@ -8,8 +8,8 @@ public class Player {
 
     private int id;
     private String name;
-    private String title;
     private String file;
+    private String type;
 
     public int getId() {
         return id;
@@ -27,12 +27,12 @@ public class Player {
         this.name = name;
     }
 
-    public String getTitle() {
-        return title;
+    public String getType() {
+        return type;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getFile() {
