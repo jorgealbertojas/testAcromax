@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -32,8 +33,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.jorge.mytestacromax.utilite.Information.BASE_URL;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_FILE;
+import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_HEIGHT;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_NAME;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_TYPE;
+import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_WIDTH;
 
 public class MainActivity extends AppCompatActivity implements PlayerAdapterOnClickHandler {
 
@@ -44,6 +47,9 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
 
     private ProgressBar mLoadingIndicator;
 
+
+    private FrameLayout mFrameLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_numbers);
+
+        mFrameLayout = (FrameLayout) findViewById(R.id.fl_main);
 
         /*
          * LinearLayoutManager can support HORIZONTAL or VERTICAL orientations. The reverse layout
@@ -164,11 +172,14 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
     @Override
     public void onClick(Player player) {
         Context context = this;
+
         Class destinationClass = PlayerActivity.class;
         Intent intentToStartDetailActivity = new Intent(context, destinationClass);
         intentToStartDetailActivity.putExtra(PUT_EXTRA_NAME, player.getName());
         intentToStartDetailActivity.putExtra(PUT_EXTRA_FILE, player.getFile());
         intentToStartDetailActivity.putExtra(PUT_EXTRA_TYPE, player.getType());
+        intentToStartDetailActivity.putExtra(PUT_EXTRA_HEIGHT, Integer.toString(((mFrameLayout.getMeasuredHeight() - mLoadingIndicator.getMeasuredHeight())/2)) );
+        intentToStartDetailActivity.putExtra(PUT_EXTRA_WIDTH, Integer.toString(((mFrameLayout.getMeasuredWidth() - mLoadingIndicator.getMeasuredWidth())/2)) );
         startActivity(intentToStartDetailActivity);
     }
 }

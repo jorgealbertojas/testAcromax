@@ -63,10 +63,12 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerAdap
     public class PlayerAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView mNameTextView;
+        public final ImageView mPlayerImageView;
 
         public PlayerAdapterViewHolder(View view) {
             super(view);
             mNameTextView = (TextView) view.findViewById(R.id.tv_name);
+            mPlayerImageView = (ImageView) view.findViewById(R.id.iv_player);
             view.setOnClickListener(this);
         }
 
@@ -117,7 +119,11 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerAdap
     public void onBindViewHolder(PlayerAdapterViewHolder PlayerAdapterViewHolder, int position) {
 
         Player player = ((Player) data.get(position));
-
+        if (player.getType().toString().equals("SOUND")) {
+            PlayerAdapterViewHolder.mPlayerImageView.setImageResource(R.mipmap.ic_sound);
+        }else{
+            PlayerAdapterViewHolder.mPlayerImageView.setImageResource(R.mipmap.ic_video);
+        }
         PlayerAdapterViewHolder.mNameTextView.setText(player.getName());
 
     }

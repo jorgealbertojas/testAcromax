@@ -22,5 +22,7 @@ public class Information {
     public final static String PUT_EXTRA_NAME = "NAME";
     public final static String PUT_EXTRA_FILE = "FILE";
     public final static String PUT_EXTRA_TYPE = "TYPE";
+    public final static String PUT_EXTRA_HEIGHT = "HEIGHT";
+    public final static String PUT_EXTRA_WIDTH = "WIDTH";
 
 }

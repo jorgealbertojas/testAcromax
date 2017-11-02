@@ -16,10 +16,10 @@
 
     <TextView
         android:id="@+id/tv_name"
-        android:text="testettttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
-        android:textColor="@color/colorPrimary"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18sp" />
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
@@ -27,5 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
+
 
 </FrameLayout>
