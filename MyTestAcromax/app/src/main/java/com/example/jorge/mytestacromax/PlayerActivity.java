@@ -3,27 +3,19 @@ package com.example.jorge.mytestacromax;
 import android.animation.Animator;
 import android.content.ClipData;
 import android.content.ClipDescription;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.ScaleAnimation;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.example.jorge.mytestacromax.utilite.HesitateInterpolator;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -36,32 +28,23 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.util.Util;
-
 import java.io.IOException;
-import java.util.List;
-
 import de.hdodenhof.circleimageview.CircleImageView;
-
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_FILE;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_HEIGHT;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_NAME;
@@ -73,34 +56,32 @@ import static com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSel
 import static com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS;
 import static com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS;
 
-
-
-
+/** Activty the Detail with player*/
 public class PlayerActivity extends AppCompatActivity implements ExoPlayer.EventListener {
 
-
-
-
-    TextView tv_name;
+    private TextView tv_name;
 
     private ProgressBar progressBar;
 
-    private int _xDelta;
-    private int _yDelta;
+    public int publicDeltaX;
+    public int publicDeltaY;
 
-    float downX = 0, downY = 0, upX, upY;
+    public float publicDownX = 0;
+    public float publicDownY = 0;
+    public float publicUpX = 0;
+    public float publicUpY = 0;
 
     private String mHeight;
     private String mWidth;
 
-    private String mName;
-    private String mFile;
-    private String mType;
+    String mName;
+    String mFile;
+    String mType;
 
     private SimpleExoPlayerView simpleExoPlayerView;
     private SimpleExoPlayer player;
 
-    private LinearLayout mLinearLayoutPalyPause;
+    private LinearLayout mLinearLayoutPlayPause;
     private LinearLayout mLinearLayoutLineTime;
     private RelativeLayout mRelativeLayout;
     private android.widget.RelativeLayout.LayoutParams layoutParams;
@@ -108,6 +89,8 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
     private CircleImageView exo_play;
     private CircleImageView exo_pause;
 
+
+    /** Get event for pass Parent*/
     private View.OnTouchListener mParentListener = new View.OnTouchListener() {
 
         @Override
@@ -115,13 +98,10 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
             getOnTouch(view,motionEvent);
             return true;
         }
-
-
     };
 
+    /** Get event for pass Parent*/
     private View.OnDragListener mParentListenerDrag = new View.OnDragListener() {
-
-
         @Override
         public boolean onDrag(View view, DragEvent dragEvent) {
             getOnDrag(view,dragEvent);
@@ -140,6 +120,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        /** Returns Put extra*/
         Bundle extras = getIntent().getExtras();
         mName = extras.getString(PUT_EXTRA_NAME);
         mFile = extras.getString(PUT_EXTRA_FILE);
@@ -147,60 +128,46 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         mHeight = extras.getString(PUT_EXTRA_HEIGHT);
         mWidth = extras.getString(PUT_EXTRA_WIDTH);
 
-        exo_play  = (CircleImageView) findViewById(R.id.exo_play);
-        exo_pause = (CircleImageView) findViewById(R.id.exo_pause);
-
+        /** Title Video*/
         tv_name  = (TextView) findViewById(R.id.tv_name);
         tv_name.setText(mName);
 
-        mLinearLayoutPalyPause = (LinearLayout) findViewById(R.id.ll_play_pause);
+        /** View Detail with event*/
         mLinearLayoutLineTime = (LinearLayout) findViewById(R.id.ll_line_time);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.rl_player);
-
-
-
-        mLinearLayoutPalyPause.setOnLongClickListener(new View.OnLongClickListener() {
+        mLinearLayoutPlayPause = (LinearLayout) findViewById(R.id.ll_play_pause);
+        mLinearLayoutPlayPause.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 ClipData.Item item = new ClipData.Item((CharSequence)v.getTag());
                 String[] mimeTypes = {ClipDescription.MIMETYPE_TEXT_PLAIN};
-
                 ClipData dragData = new ClipData(v.getTag().toString(),mimeTypes, item);
-                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mLinearLayoutPalyPause);
-
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(mLinearLayoutPlayPause);
                 v.startDrag(dragData,myShadow,null,0);
-
-
                 return true;
             }
         });
-
-
-
-        mLinearLayoutPalyPause.setOnDragListener(new View.OnDragListener() {
+        mLinearLayoutPlayPause.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
                 return getOnDrag(v,event);
-
             }
         });
-
-
-
-        mLinearLayoutPalyPause.setOnTouchListener(new View.OnTouchListener() {
+        mLinearLayoutPlayPause.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                return getOnTouch(v, event);
             }
-
-
         });
 
 
+        /** Control Player with event*/
+        exo_play  = (CircleImageView) findViewById(R.id.exo_play);
+        exo_pause = (CircleImageView) findViewById(R.id.exo_pause);
         exo_play.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                mParentListener.onTouch(mLinearLayoutPalyPause, event);
+                mParentListener.onTouch(mLinearLayoutPlayPause, event);
                 return false;
             }
         });
@@ -208,7 +175,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         exo_pause.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                mParentListener.onTouch(mLinearLayoutPalyPause, event);
+                mParentListener.onTouch(mLinearLayoutPlayPause, event);
                 return false;
             }
         });
@@ -216,7 +183,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         exo_play.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
-                mParentListenerDrag.onDrag(mLinearLayoutPalyPause, dragEvent);
+                mParentListenerDrag.onDrag(mLinearLayoutPlayPause, dragEvent);
                 return false;
             }
        });
@@ -224,25 +191,18 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         exo_pause.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View view, DragEvent dragEvent) {
-                mParentListenerDrag.onDrag(mLinearLayoutPalyPause, dragEvent);
+                mParentListenerDrag.onDrag(mLinearLayoutPlayPause, dragEvent);
                 return false;
             }
         });
-
-
-
 
 
         // 1. Create a default TrackSelector
         Handler mainHandler = new Handler();
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
-
-        /*** 2. Put the best QUALITY
-        */
+        /*** 2. Put the best QUALITY*/
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(bandwidthMeter,DEFAULT_MAX_INITIAL_BITRATE, DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS, DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS, DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,DEFAULT_BANDWIDTH_FRACTION);
-
-
         TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
         // 3. Create a default LoadControl
@@ -263,7 +223,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         // This is the MediaSource representing the media to be played.
 
-        if (mType.toString().equals("SOUND")){
+        if (mType.equals("SOUND")){
             MediaSource mediaSource = null;
             mediaSource = createPlayerSound(dataSourceFactory, extractorsFactory);
             player.prepare(mediaSource);
@@ -274,16 +234,13 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         }
 
         player.addListener(this);
-
         simpleExoPlayerView.requestFocus();
         player.setPlayWhenReady(true);
-
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-
 
     }
 
+    /*** function return HlsMediaSource of the Video*/
     private HlsMediaSource createPlayerVideo(DataSource.Factory dataSourceFactory, Handler mainHandler) {
         HlsMediaSource hlsMediaSource = new HlsMediaSource(Uri.parse(mFile), dataSourceFactory, mainHandler, new AdaptiveMediaSourceEventListener() {
             @Override
@@ -320,6 +277,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
     }
 
+    /*** function return HlsMediaSource of the Sound*/
     private MediaSource createPlayerSound(DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory)  {
         MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(mFile),
                 dataSourceFactory,
@@ -354,6 +312,8 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
     }
 
+
+    /*** Listening Touch finger user */
     public void onLeftToRightSwipe(View v){
 
         Log.i(TAG, "left to right");
@@ -384,6 +344,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         mRelativeLayout.invalidate();
     }
 
+    /*** Listening Touch finger user */
     public void onRightToLeftSwipe(View v) {
 
         Log.i(TAG, "right to left");
@@ -414,6 +375,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         mRelativeLayout.invalidate();
     }
 
+    /*** Listening Touch finger user */
     public void onTopToBottomSwipe(View v) {
 
         Log.i(TAG, "top to bottom");
@@ -444,6 +406,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         mRelativeLayout.invalidate();
     }
 
+    /*** Listening Touch finger user */
     public void onBottomToTopSwipe(View v) {
 
         Log.i(TAG, "bottom to top ");
@@ -474,6 +437,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         mRelativeLayout.invalidate();
     }
 
+    /*** Listening Pause user */
     @Override
     protected void onPause() {
         super.onPause();
@@ -482,12 +446,15 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         }
     }
 
+
+    /*** Dextroy player */
     @Override
     protected void onDestroy() {
         super.onDestroy();
         player.release();
     }
 
+    /*** Change Progreess an Control Player dependent of the Status */
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 
@@ -518,6 +485,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
         }
     }
 
+    /*** Listening Touch finger user */
    public boolean getOnTouch(View v, MotionEvent event){
        int min_distance = 200;
        final int X = (int) event.getRawX();
@@ -525,26 +493,19 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
 
        switch (event.getAction() & MotionEvent.ACTION_MASK) {
            case MotionEvent.ACTION_DOWN:
-               downX = X;
-               downY = Y;
-
-
+               publicDownX = X;
+               publicDownY = Y;
                Log.i(TAG,"ACTION_DOWN" + "x"+ Integer.toString(X) + "y" + Integer.toString(Y));
                RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
-               _xDelta = X - lParams.leftMargin;
-               _yDelta = Y - lParams.topMargin;
-               return true;
-
-           // break;
+               publicDeltaX = X - lParams.leftMargin;
+               publicDeltaY = Y - lParams.topMargin;
+               break;
            case MotionEvent.ACTION_UP:
-               upX = X;
-               upY = Y;
-
+               publicUpX = X;
+               publicUpY = Y;
                Log.i(TAG,"ACTION_UP" + "x"+ Integer.toString(X) + "y" + Integer.toString(Y));
-
-
-               float deltaX = downX - upX;
-               float deltaY = downY - upY;
+               float deltaX = publicDownX - publicUpX;
+               float deltaY = publicDownY - publicUpY;
                //HORIZONTAL SCROLL
                if (Math.abs(deltaX) > Math.abs(deltaY)) {
                    if (Math.abs(deltaX) > min_distance) {
@@ -578,8 +539,7 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
                        //not long enough swipe...
                        return false;
                    }
-
-               }
+              }
                return true;
 
            case MotionEvent.ACTION_BUTTON_PRESS:
@@ -591,10 +551,8 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
            case MotionEvent.ACTION_MOVE:
                Log.i("TAG","ACTION_MOVE" + "x"+ Integer.toString(X) + "y" + Integer.toString(Y));
                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
-               layoutParams.leftMargin = X - _xDelta;
-               layoutParams.topMargin = Y - _yDelta;
-               layoutParams.rightMargin = -250;
-               layoutParams.bottomMargin = -250;
+               layoutParams.leftMargin = X - publicDeltaX;
+               layoutParams.topMargin = Y - publicDeltaY;
                v.setLayoutParams(layoutParams);
                break;
        }
@@ -602,57 +560,39 @@ public class PlayerActivity extends AppCompatActivity implements ExoPlayer.Event
        return true;
    }
 
-
+    /*** Funtion of the event getOnDrag */
    public boolean getOnDrag(View view, DragEvent dragEvent){
        switch(dragEvent.getAction()) {
            case DragEvent.ACTION_DRAG_STARTED:
                layoutParams = (RelativeLayout.LayoutParams)view.getLayoutParams();
                Log.d(TAG, "Action is DragEvent.ACTION_DRAG_STARTED");
-
-               // Do nothing
                break;
-
            case DragEvent.ACTION_DRAG_ENTERED:
                Log.d(TAG, "Action is DragEvent.ACTION_DRAG_ENTERED");
-               int x_cord = (int) dragEvent.getX();
-               int y_cord = (int) dragEvent.getY();
                break;
-
            case DragEvent.ACTION_DRAG_EXITED :
                Log.d(TAG, "Action is DragEvent.ACTION_DRAG_EXITED");
-               x_cord = (int) dragEvent.getX();
-               y_cord = (int) dragEvent.getY();
-               layoutParams.leftMargin = x_cord;
-               layoutParams.topMargin = y_cord;
                view.setLayoutParams(layoutParams);
                break;
-
            case DragEvent.ACTION_DRAG_LOCATION  :
                Log.d(TAG, "Action is DragEvent.ACTION_DRAG_LOCATION");
-               x_cord = (int) dragEvent.getX();
-               y_cord = (int) dragEvent.getY();
                break;
-
            case DragEvent.ACTION_DRAG_ENDED   :
                Log.d(TAG, "Action is DragEvent.ACTION_DRAG_ENDED");
-
-               // Do nothing
                break;
-
            case DragEvent.ACTION_DROP:
                Log.d(TAG, "ACTION_DROP event");
-
-               // Do nothing
                break;
            default: break;
        }
        return true;
    }
 
+    /*** Put Cicle Player in of the middle */
    public void putCenterPlayer(){
        Log.i(TAG, "putCenterPlayer" + mRelativeLayout.getScaleX() + " " + mRelativeLayout.getMeasuredHeight() );
 
-       mLinearLayoutPalyPause.animate().setInterpolator(new DecelerateInterpolator())
+       mLinearLayoutPlayPause.animate().setInterpolator(new DecelerateInterpolator())
                .setDuration(0)
                .x(Float.parseFloat(mWidth))
                .y(Float.parseFloat(mHeight)).setListener(new Animator.AnimatorListener() {

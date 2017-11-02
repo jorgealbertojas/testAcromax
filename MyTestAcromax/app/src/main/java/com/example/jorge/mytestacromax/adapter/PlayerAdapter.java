@@ -7,10 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.example.jorge.mytestacromax.R;
 import com.example.jorge.mytestacromax.model.Player;
-
 import java.util.List;
 
 /**
@@ -25,11 +23,8 @@ import java.util.List;
 public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerAdapterViewHolder> {
 
     private List<Player> data;
-
     private Context mContext;
-
     private TextView mTxName;
-
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
      * our RecyclerView
@@ -119,7 +114,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerAdap
     public void onBindViewHolder(PlayerAdapterViewHolder PlayerAdapterViewHolder, int position) {
 
         Player player = ((Player) data.get(position));
-        if (player.getType().toString().equals("SOUND")) {
+        if (player.getType().equals("SOUND")) {
             PlayerAdapterViewHolder.mPlayerImageView.setImageResource(R.mipmap.ic_sound);
         }else{
             PlayerAdapterViewHolder.mPlayerImageView.setImageResource(R.mipmap.ic_video);

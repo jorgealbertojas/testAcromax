@@ -4,13 +4,17 @@ package com.example.jorge.mytestacromax.model;
  * Created by jorge on 01/11/2017.
  */
 
+
+/*** Model of the Json  */
 public class Player {
 
+    /*** Fields */
     private int id;
     private String name;
     private String file;
     private String type;
 
+    /*** Get and Set */
     public int getId() {
         return id;
     }

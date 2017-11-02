@@ -33,7 +33,6 @@
             tools:context="com.example.jorge.mytestacromax.MainActivity">
     <TextView
         android:id="@+id/tv_name"
-        android:text="ffffff"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginRight="8dp"

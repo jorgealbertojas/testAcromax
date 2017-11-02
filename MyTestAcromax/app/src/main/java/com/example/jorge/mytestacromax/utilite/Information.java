@@ -10,11 +10,11 @@ public class Information {
     /** Returns Json order POPULAR*/
     public final static String INFORMATION = "/questions";
 
-    /** Get Json the mock API Json Systema Web apiary */
+    /** Get Json the mock API Json System Web apiary */
     public final static String BASE_URL =
             "https://private-4da42-jsonacromax.apiary-mock.com/";
 
-    public final static String TAG = "infomationDeBug";
+    public final static String TAG = "informationDeBug";
 
     /**
      * Field for PUT EXTRA.

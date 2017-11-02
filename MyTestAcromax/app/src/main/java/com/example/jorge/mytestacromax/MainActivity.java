@@ -38,16 +38,14 @@ import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_NAME
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_TYPE;
 import static com.example.jorge.mytestacromax.utilite.Information.PUT_EXTRA_WIDTH;
 
+/** Main with list the player*/
+
 public class MainActivity extends AppCompatActivity implements PlayerAdapterOnClickHandler {
 
-    PlayerAdapter mMoviesAdapter;
+    private PlayerAdapter mMoviesAdapter;
     private Interface mPlayerInterface;
-
     private RecyclerView mRecyclerView;
-
     private ProgressBar mLoadingIndicator;
-
-
     private FrameLayout mFrameLayout;
 
     @Override
@@ -57,9 +55,7 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
 
         // Get a reference to the ProgressBar using findViewById
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_numbers);
-
         mFrameLayout = (FrameLayout) findViewById(R.id.fl_main);
 
         /*
@@ -67,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
          * parameter is useful mostly for HORIZONTAL layouts that should reverse for right to left
          * languages.
          */
-
         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
         /*
@@ -137,8 +132,8 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
 
         @Override
         public void onFailure(Call<ListWrapperPlayer<Player>> call, Throwable t) {
-            Context contexto = getApplicationContext();
-            Toast toast = Toast.makeText(contexto, R.string.Error_json_data,Toast.LENGTH_SHORT);
+            Context context = getApplicationContext();
+            Toast toast = Toast.makeText(context, R.string.Error_json_data,Toast.LENGTH_SHORT);
             toast.show();
         }
 
@@ -169,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements PlayerAdapterOnCl
     }
 
 
+    /** Call activity Detail with Player*/
     @Override
     public void onClick(Player player) {
         Context context = this;
